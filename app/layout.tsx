@@ -7,7 +7,6 @@ import Header from "@/components/Header";
 const newsreader = Newsreader({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
   variable: "--font-newsreader",
   display: "swap",
 });
