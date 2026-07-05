@@ -1,4 +1,11 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      { hostname: "static.wixstatic.com" },
+      { hostname: "images.unsplash.com" },
+    ],
+  },
+};
 
 module.exports = nextConfig;

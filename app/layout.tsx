@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Newsreader, Karla, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-
+import "leaflet/dist/leaflet.css";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -26,23 +27,26 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WeeCare Canada | Pediatric Home Health Care Services",
+  title: {
+    default: "WeeCare Canada | Personalized Home Care Services",
+    template: "%s | WeeCare Canada",
+  },
   description:
-    "Compassionate pediatric home health care across Ontario. WeeCare provides nursing services, personal support, respite care, behavioural support, and school nursing tailored to your child's unique needs.",
+    "Compassionate, personalized home care for seniors and individuals with disabilities across Ontario. Book a consultation today.",
   keywords: [
     "WeeCare Canada",
-    "Pediatric Home Care",
-    "Pediatric Nursing",
-    "Home Health Care Ontario",
+    "Home Care Ontario",
+    "Senior Care Kitchener",
     "Respite Care",
-    "Behavioural Support",
-    "School Nursing",
+    "Companionship Support",
+    "Dementia Care",
     "Personal Support Services",
+    "Fall Prevention",
   ],
   openGraph: {
-    title: "WeeCare Canada | Pediatric Home Health Care Services",
+    title: "WeeCare Canada | Personalized Home Care Services",
     description:
-      "Personalized pediatric home care and nursing services for families across Ontario.",
+      "Compassionate, personalized home care for seniors and individuals with disabilities across Ontario.",
     type: "website",
     locale: "en_CA",
     siteName: "WeeCare Canada",
@@ -61,13 +65,8 @@ export default function RootLayout({
     >
       <body className="font-body antialiased min-h-screen flex flex-col bg-white text-gray-900">
         <Header />
-
-        <main className="flex-1">
-          {children}
-        </main>
-
-        {/* Footer */}
-        {/* <Footer /> */}
+        <main className="flex-1">{children}</main>
+        <Footer />
       </body>
     </html>
   );
