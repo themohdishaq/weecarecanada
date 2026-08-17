@@ -17,12 +17,16 @@ const TIME_SLOTS = [
   "3:00 p.m.", "3:30 p.m.",
 ];
 
+const STAFF_MEMBERS = ["Any staff member", "Afnan Aleem", "Momna afnan"];
+
 export default function HomeVisitPage() {
   const router = useRouter();
   const today = startOfDay(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [showAllSlots, setShowAllSlots] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState<string>("Any staff member");
+  const [isStaffDropdownOpen, setIsStaffDropdownOpen] = useState(false);
 
   const isDateDisabled = (date: Date) => isBefore(date, today) || isWeekend(date);
 
@@ -36,6 +40,7 @@ export default function HomeVisitPage() {
       date: format(selectedDate!, "MMMM d, yyyy"),
       time: selectedTime!,
       price: "$50",
+      staffMember: selectedStaff,
     });
     router.push(`/booking-form?${params.toString()}`);
   };
@@ -59,19 +64,7 @@ export default function HomeVisitPage() {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-12">
 
-        {/* Service summary strip */}
-        <div className="flex flex-wrap items-center gap-4 sm:gap-8 bg-purple-50 border border-purple-100 px-5 py-4 mb-8 text-[14px]">
-          <span className="font-medium text-[#554971]">Home Visit</span>
-          <span className="flex items-center gap-1.5 text-gray-600">
-            <Clock className="w-3.5 h-3.5 text-[#845f98]" />
-            1 hour
-          </span>
-          <span className="flex items-center gap-1.5 text-gray-600">
-            <DollarSign className="w-3.5 h-3.5 text-[#845f98]" />
-            $50
-          </span>
-        </div>
-
+    
         {/* Main layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
 
@@ -150,9 +143,37 @@ export default function HomeVisitPage() {
                   Preferences
                 </h2>
                 <label className="block text-[#845f98] text-[13px] mb-2">Staff Member</label>
-                <div className="w-full border border-gray-300 px-3 py-2.5 flex justify-between items-center text-gray-700 bg-white cursor-pointer hover:border-gray-400 transition-colors mb-4">
-                  <span className="text-[14px]">Any staff member</span>
-                  <ChevronDown className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                <div className="relative w-full">
+                  <button
+                    onClick={() => setIsStaffDropdownOpen(!isStaffDropdownOpen)}
+                    className="w-full border border-gray-300 px-3 py-2.5 flex justify-between items-center text-gray-700 bg-white cursor-pointer hover:border-gray-400 transition-colors rounded"
+                  >
+                    <span className="text-[14px]">{selectedStaff}</span>
+                    <ChevronDown 
+                      className={`w-4 h-4 text-gray-400 transition-transform ${isStaffDropdownOpen ? 'rotate-180' : ''}`} 
+                      strokeWidth={1.5} 
+                    />
+                  </button>
+                  {isStaffDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded shadow-md z-10">
+                      {STAFF_MEMBERS.map((member) => (
+                        <button
+                          key={member}
+                          onClick={() => {
+                            setSelectedStaff(member);
+                            setIsStaffDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-2.5 text-[14px] transition-colors ${
+                            selectedStaff === member
+                              ? 'bg-[#89599c] text-white'
+                              : 'hover:bg-gray-50 text-gray-700'
+                          }`}
+                        >
+                          {member}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}

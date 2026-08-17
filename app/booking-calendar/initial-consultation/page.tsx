@@ -17,12 +17,16 @@ const TIME_SLOTS = [
   "3:00 p.m.", "3:30 p.m.",
 ];
 
+const STAFF_MEMBERS = ["Any staff member", "Afnan Aleem", "Momna afnan"];
+
 export default function InitialConsultationPage() {
   const router = useRouter();
   const today = startOfDay(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [showAllSlots, setShowAllSlots] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState<string>("Any staff member");
+  const [isStaffDropdownOpen, setIsStaffDropdownOpen] = useState(false);
 
   const isDateDisabled = (date: Date) => isBefore(date, today) || isWeekend(date);
 
@@ -36,6 +40,7 @@ export default function InitialConsultationPage() {
       date: format(selectedDate!, "MMMM d, yyyy"),
       time: selectedTime!,
       price: "Free",
+      staffMember: selectedStaff,
     });
     router.push(`/booking-form?${params.toString()}`);
   };
@@ -150,9 +155,37 @@ export default function InitialConsultationPage() {
                   Preferences
                 </h2>
                 <label className="block text-[#845f98] text-[13px] mb-2">Staff Member</label>
-                <div className="w-full border border-gray-300 px-3 py-2.5 flex justify-between items-center text-gray-700 bg-white cursor-pointer hover:border-gray-400 transition-colors mb-4">
-                  <span className="text-[14px]">Any staff member</span>
-                  <ChevronDown className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                <div className="relative w-full">
+                  <button
+                    onClick={() => setIsStaffDropdownOpen(!isStaffDropdownOpen)}
+                    className="w-full border border-gray-300 px-3 py-2.5 flex justify-between items-center text-gray-700 bg-white cursor-pointer hover:border-gray-400 transition-colors rounded"
+                  >
+                    <span className="text-[14px]">{selectedStaff}</span>
+                    <ChevronDown 
+                      className={`w-4 h-4 text-gray-400 transition-transform ${isStaffDropdownOpen ? 'rotate-180' : ''}`} 
+                      strokeWidth={1.5} 
+                    />
+                  </button>
+                  {isStaffDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded shadow-md z-10">
+                      {STAFF_MEMBERS.map((member) => (
+                        <button
+                          key={member}
+                          onClick={() => {
+                            setSelectedStaff(member);
+                            setIsStaffDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-2.5 text-[14px] transition-colors ${
+                            selectedStaff === member
+                              ? 'bg-[#89599c] text-white'
+                              : 'hover:bg-gray-50 text-gray-700'
+                          }`}
+                        >
+                          {member}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}

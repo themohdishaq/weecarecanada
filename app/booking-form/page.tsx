@@ -31,9 +31,26 @@ function BookingFormContent() {
   const date = params.get("date") || "";
   const time = params.get("time") || "";
   const price = params.get("price") || "$50";
+  const staffMember = params.get("staffMember") || "Any staff member";
   const isFree = price.toLowerCase() === "free";
 
   const [submitted, setSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    country: "Canada",
+    streetAddress: "",
+    city: "",
+    province: "Ontario",
+    postalCode: "",
+    message: "",
+    website: "", // honeypot — real users never see or fill this
+  });
 
   if (submitted) {
     return (
@@ -100,13 +117,68 @@ function BookingFormContent() {
 
           {/* Left: Form */}
           <form
-            className="space-y-6"
-            onSubmit={(e) => {
+            className="relative space-y-6"
+            onSubmit={async (e) => {
               e.preventDefault();
-              setSubmitted(true);
-              window.scrollTo({ top: 0, behavior: "smooth" });
+              setIsLoading(true);
+              setErrorMessage(null);
+
+              try {
+                const bookingData = {
+                  service,
+                  date,
+                  time,
+                  price,
+                  staffMember,
+                  firstName: formData.firstName,
+                  lastName: formData.lastName,
+                  email: formData.email,
+                  phoneNumber: formData.phoneNumber,
+                  country: formData.country,
+                  streetAddress: formData.streetAddress,
+                  city: formData.city,
+                  province: formData.province,
+                  postalCode: formData.postalCode,
+                  message: formData.message,
+                  website: formData.website,
+                };
+
+                const response = await fetch("/api/bookings/submit", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(bookingData),
+                });
+
+                if (!response.ok) {
+                  const errorData = await response.json();
+                  throw new Error(errorData.error || "Failed to submit booking");
+                }
+
+                setSubmitted(true);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } catch (error: any) {
+                console.error("Booking submission error:", error);
+                setErrorMessage(error.message || "Something went wrong. Please try again.");
+              } finally {
+                setIsLoading(false);
+              }
             }}
           >
+            <div className="absolute -left-[9999px]" aria-hidden="true">
+              <label htmlFor="bookingWebsite">Website</label>
+              <input
+                id="bookingWebsite"
+                name="website"
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                value={formData.website}
+                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+              />
+            </div>
+
             {/* Client details */}
             <div>
               <h2 className="text-[#554971] text-xl font-light mb-6 pb-3 border-b border-gray-100">
@@ -116,15 +188,36 @@ function BookingFormContent() {
               <div className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <Field label="First Name" required>
-                    <input type="text" required placeholder="Jane" className={inputCls} />
+                    <input 
+                      type="text" 
+                      required 
+                      placeholder="Jane" 
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                      className={inputCls} 
+                    />
                   </Field>
                   <Field label="Last Name" required>
-                    <input type="text" required placeholder="Doe" className={inputCls} />
+                    <input 
+                      type="text" 
+                      required 
+                      placeholder="Doe" 
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                      className={inputCls} 
+                    />
                   </Field>
                 </div>
 
                 <Field label="Email" required>
-                  <input type="email" required placeholder="you@example.com" className={inputCls} />
+                  <input 
+                    type="email" 
+                    required 
+                    placeholder="you@example.com" 
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className={inputCls} 
+                  />
                 </Field>
 
                 <Field label="Phone Number">
@@ -136,6 +229,8 @@ function BookingFormContent() {
                     <input
                       type="tel"
                       placeholder="+1 (647) 000-0000"
+                      value={formData.phoneNumber}
+                      onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                       className="w-full px-4 py-3 text-[15px] text-gray-800 focus:outline-none bg-white"
                     />
                   </div>
@@ -152,7 +247,11 @@ function BookingFormContent() {
               <div className="space-y-5">
                 <Field label="Country" required>
                   <div className="relative border border-gray-200 focus-within:border-[#89599c] transition-colors">
-                    <select defaultValue="Canada" className="w-full px-4 py-3 text-[15px] text-gray-800 appearance-none focus:outline-none bg-white">
+                    <select 
+                      value={formData.country}
+                      onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                      className="w-full px-4 py-3 text-[15px] text-gray-800 appearance-none focus:outline-none bg-white"
+                    >
                       <option value="Canada">Canada</option>
                       <option value="United States">United States</option>
                     </select>
@@ -161,16 +260,34 @@ function BookingFormContent() {
                 </Field>
 
                 <Field label="Street Address" required>
-                  <input type="text" required placeholder="123 Main Street" className={inputCls} />
+                  <input 
+                    type="text" 
+                    required 
+                    placeholder="123 Main Street" 
+                    value={formData.streetAddress}
+                    onChange={(e) => setFormData({ ...formData, streetAddress: e.target.value })}
+                    className={inputCls} 
+                  />
                 </Field>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <Field label="City" required>
-                    <input type="text" required placeholder="Kitchener" className={inputCls} />
+                    <input 
+                      type="text" 
+                      required 
+                      placeholder="Kitchener" 
+                      value={formData.city}
+                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                      className={inputCls} 
+                    />
                   </Field>
                   <Field label="Province" required>
                     <div className="relative border border-gray-200 focus-within:border-[#89599c] transition-colors">
-                      <select defaultValue="Ontario" className="w-full px-4 py-3 text-[15px] text-gray-800 appearance-none focus:outline-none bg-white">
+                      <select 
+                        value={formData.province}
+                        onChange={(e) => setFormData({ ...formData, province: e.target.value })}
+                        className="w-full px-4 py-3 text-[15px] text-gray-800 appearance-none focus:outline-none bg-white"
+                      >
                         {CANADIAN_PROVINCES.map((p) => (
                           <option key={p} value={p}>{p}</option>
                         ))}
@@ -181,7 +298,15 @@ function BookingFormContent() {
                 </div>
 
                 <Field label="Postal Code" required>
-                  <input type="text" required placeholder="N2E 4G2" className={inputCls} style={{ maxWidth: "180px" }} />
+                  <input 
+                    type="text" 
+                    required 
+                    placeholder="N2E 4G2" 
+                    value={formData.postalCode}
+                    onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                    className={inputCls} 
+                    style={{ maxWidth: "180px" }} 
+                  />
                 </Field>
               </div>
             </div>
@@ -195,10 +320,19 @@ function BookingFormContent() {
                 <textarea
                   rows={4}
                   placeholder="Any special requests, medical conditions, or information we should know about…"
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   className={`${inputCls} resize-y`}
                 />
               </Field>
             </div>
+
+            {/* Error message */}
+            {errorMessage && (
+              <div className="bg-red-50 border border-red-200 p-4 rounded text-red-700 text-[14px]">
+                ⚠️ {errorMessage}
+              </div>
+            )}
 
             {/* Mobile booking summary (shown above submit on small screens) */}
             <div className="lg:hidden bg-gray-50 border border-gray-200 p-5 space-y-3">
@@ -225,9 +359,14 @@ function BookingFormContent() {
               </p>
               <button
                 type="submit"
-                className="w-full py-4 bg-[#8C52A1] hover:bg-[#714083] transition-colors text-white text-[16px] font-light"
+                disabled={isLoading}
+                className={`w-full py-4 text-[16px] font-light transition-colors ${
+                  isLoading
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-[#8C52A1] hover:bg-[#714083] text-white cursor-pointer"
+                }`}
               >
-                Confirm Booking
+                {isLoading ? "Submitting your booking..." : "Confirm Booking"}
               </button>
             </div>
           </form>

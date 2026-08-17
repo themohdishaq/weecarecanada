@@ -44,7 +44,7 @@ export default function Header() {
 
         {/* Logo */}
         <Link href="/" >
-          <div className="relative h-28 w-28 shrink-0">
+          <div className="relative h-20 w-28 shrink-0">
             <svg preserveAspectRatio="xMidYMid meet" data-bbox="0 0 684.452 228.697" viewBox="0 0 667.21 252.58" xmlns="http://www.w3.org/2000/svg" data-type="ugc" role="presentation" aria-hidden="true" aria-label="" className="absolute inset-0 w-full h-full">
     <g>
         <g>

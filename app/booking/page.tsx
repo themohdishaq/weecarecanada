@@ -5,6 +5,15 @@ export const metadata: Metadata = {
   title: "Book Online",
   description:
     "Schedule your home care service online. Choose from an initial consultation or a home visit.",
+  alternates: {
+    canonical: "/booking",
+  },
+  openGraph: {
+    title: "Book Online | WeeCare Canada",
+    description:
+      "Schedule your home care service online. Choose from an initial consultation or a home visit.",
+    url: "/booking",
+  },
 };
 
 const bookingOptions = [
@@ -28,8 +37,8 @@ const bookingOptions = [
     title: "Home Visit",
     description:
       "Experience the comfort and convenience of professional home care with a personalized home visit from our team.",
-    duration: "1 hr",
-    price: "$50",
+    duration: null,
+    price: null,
     badge: null,
   },
 ];
@@ -70,15 +79,7 @@ export default function BookingPage() {
               <p className="text-gray-600 text-[14px] leading-relaxed mb-6 flex-grow">
                 {option.description}
               </p>
-
-              <div className="mt-auto w-full flex flex-col items-center gap-1 mb-5">
-                <p className="text-gray-500 text-[14px]">Duration: {option.duration}</p>
-                {option.price ? (
-                  <p className="text-gray-500 text-[14px]">Price: {option.price}</p>
-                ) : (
-                  <p className="text-[#0fa960] text-[14px] font-medium">Free of charge</p>
-                )}
-              </div>
+<br/>
 
               <Link
                 href={option.href}

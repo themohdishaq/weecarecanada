@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   title: "WeeCare Canada | Personalized Home Care Services",
   description:
     "Compassionate home care services for seniors and individuals with disabilities across Ontario. Respite care, companionship, personal care, and more.",
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function Home() {

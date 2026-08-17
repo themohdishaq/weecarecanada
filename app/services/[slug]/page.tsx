@@ -15,10 +15,19 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const service = ServiceList.find((s) => slugify(s.heading) === params.slug);
-  if (!service) return { title: "Service Not Found" };
+  if (!service) return { title: "Service Not Found", robots: { index: false } };
   return {
     title: service.heading,
     description: service.subtitle,
+    alternates: {
+      canonical: `/services/${params.slug}`,
+    },
+    openGraph: {
+      title: service.heading,
+      description: service.subtitle,
+      url: `/services/${params.slug}`,
+      images: [{ url: service.image }],
+    },
   };
 }
 

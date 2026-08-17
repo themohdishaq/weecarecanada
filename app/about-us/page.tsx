@@ -6,6 +6,15 @@ export const metadata: Metadata = {
   title: "About Us",
   description:
     "Learn about WeeCare Canada — a professional home care agency dedicated to compassionate, personalized care for seniors and individuals with disabilities in Ontario.",
+  alternates: {
+    canonical: "/about-us",
+  },
+  openGraph: {
+    title: "About WeeCare Canada",
+    description:
+      "Learn about WeeCare Canada — a professional home care agency dedicated to compassionate, personalized care for seniors and individuals with disabilities in Ontario.",
+    url: "/about-us",
+  },
 };
 
 export default function AboutPage() {

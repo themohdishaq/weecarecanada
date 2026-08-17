@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { FormEvent, useState } from "react";
 
 const OfficeMap = dynamic(() => import("@/components/OfficeMap"), {
   ssr: false,
@@ -13,6 +14,45 @@ const OfficeMap = dynamic(() => import("@/components/OfficeMap"), {
 });
 
 export default function ContactPage() {
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setStatus("sending");
+    setErrorMessage("");
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: formData.get("firstName"),
+          lastName: formData.get("lastName"),
+          email: formData.get("email"),
+          phone: formData.get("phone"),
+          message: formData.get("message"),
+          website: formData.get("website"),
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to send your message.");
+      }
+
+      form.reset();
+      setStatus("success");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Unable to send your message.");
+      setStatus("error");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white font-sans">
       <div className="bg-[#76cba4] py-8 px-6 text-center w-full shadow-sm">
@@ -76,20 +116,34 @@ export default function ContactPage() {
 
               {/* Contact form */}
               <h3 className="text-[#8C52A1] text-xl font-light mb-6">Send Us a Message</h3>
-              <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+              <form className="relative space-y-5" onSubmit={handleSubmit}>
+                <div className="absolute -left-[9999px]" aria-hidden="true">
+                  <label htmlFor="contactWebsite">Website</label>
+                  <input id="contactWebsite" name="website" type="text" tabIndex={-1} autoComplete="off" />
+                </div>
                 <div className="grid sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-[13px] text-gray-500 mb-2 uppercase tracking-wide">First Name</label>
+                    <label htmlFor="contactFirstName" className="block text-[13px] text-gray-500 mb-2 uppercase tracking-wide">First Name</label>
                     <input
                       type="text"
+                      id="contactFirstName"
+                      name="firstName"
+                      required
+                      maxLength={80}
+                      autoComplete="given-name"
                       placeholder="Jane"
                       className="w-full border border-gray-200 bg-white px-4 py-3 text-[15px] outline-none focus:border-[#8C52A1] transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="block text-[13px] text-gray-500 mb-2 uppercase tracking-wide">Last Name</label>
+                    <label htmlFor="contactLastName" className="block text-[13px] text-gray-500 mb-2 uppercase tracking-wide">Last Name</label>
                     <input
                       type="text"
+                      id="contactLastName"
+                      name="lastName"
+                      required
+                      maxLength={80}
+                      autoComplete="family-name"
                       placeholder="Doe"
                       className="w-full border border-gray-200 bg-white px-4 py-3 text-[15px] outline-none focus:border-[#8C52A1] transition-colors"
                     />
@@ -97,30 +151,42 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[13px] text-gray-500 mb-2 uppercase tracking-wide">
+                  <label htmlFor="contactEmail" className="block text-[13px] text-gray-500 mb-2 uppercase tracking-wide">
                     Email <span className="text-red-400">*</span>
                   </label>
                   <input
                     type="email"
+                    id="contactEmail"
+                    name="email"
                     required
+                    maxLength={254}
+                    autoComplete="email"
                     placeholder="you@example.com"
                     className="w-full border border-gray-200 bg-white px-4 py-3 text-[15px] outline-none focus:border-[#8C52A1] transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[13px] text-gray-500 mb-2 uppercase tracking-wide">Phone</label>
+                  <label htmlFor="contactPhone" className="block text-[13px] text-gray-500 mb-2 uppercase tracking-wide">Phone</label>
                   <input
                     type="tel"
+                    id="contactPhone"
+                    name="phone"
+                    maxLength={30}
+                    autoComplete="tel"
                     placeholder="+1 (647) 000-0000"
                     className="w-full border border-gray-200 bg-white px-4 py-3 text-[15px] outline-none focus:border-[#8C52A1] transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[13px] text-gray-500 mb-2 uppercase tracking-wide">Message</label>
+                  <label htmlFor="contactMessage" className="block text-[13px] text-gray-500 mb-2 uppercase tracking-wide">Message</label>
                   <textarea
+                    id="contactMessage"
+                    name="message"
                     rows={4}
+                    required
+                    maxLength={5000}
                     placeholder="How can we help you?"
                     className="w-full border border-gray-200 bg-white px-4 py-3 text-[15px] outline-none focus:border-[#8C52A1] transition-colors resize-y"
                   />
@@ -129,9 +195,10 @@ export default function ContactPage() {
                 <div className="flex flex-col sm:flex-row gap-3 pt-1">
                   <button
                     type="submit"
-                    className="flex-1 sm:flex-none sm:px-10 py-3 bg-[#8C52A1] text-white hover:bg-[#714083] transition-colors text-[15px] font-light"
+                    disabled={status === "sending"}
+                    className="flex-1 sm:flex-none sm:px-10 py-3 bg-[#8C52A1] text-white hover:bg-[#714083] transition-colors text-[15px] font-light disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Send Message
+                    {status === "sending" ? "Sending..." : "Send Message"}
                   </button>
                   <Link
                     href="/booking"
@@ -140,14 +207,30 @@ export default function ContactPage() {
                     Book Instead
                   </Link>
                 </div>
+
+                <div aria-live="polite" className="min-h-6 text-sm">
+                  {status === "success" && (
+                    <p className="text-green-700">Thank you. Your message has been sent.</p>
+                  )}
+                  {status === "error" && (
+                    <p className="text-red-600">{errorMessage}</p>
+                  )}
+                </div>
               </form>
             </div>
 
             {/* Right: Map */}
             <div className="flex flex-col">
               <h2 className="text-[#8C52A1] text-2xl font-light mb-8">Find Our Office</h2>
-              <div className="h-[360px] md:h-[480px] overflow-hidden rounded-xl shadow-lg flex-grow">
-                <OfficeMap />
+               <div className="h-[360px] overflow-hidden rounded-xl shadow-lg md:h-[480px]">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5689.288604665934!2d-80.50967597145795!3d43.40390823306172!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x882bf5449bf12f69%3A0x8840ae0e51c83bed!2sWEE%20CARE%20CANADA%20INC!5e0!3m2!1sen!2s!4v1786988916581!5m2!1sen!2s"
+                  className="h-full w-full border-0"
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  title="WEE CARE CANADA INC office location"
+                />
               </div>
               <p className="text-gray-400 text-[13px] mt-3 text-center">
                 203 Max Becker Drive, Kitchener, Ontario N2E 4G2

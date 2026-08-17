@@ -1,5 +1,7 @@
 "use client";
 
+import { FormEvent, useState } from "react";
+
 const MapPinIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-gray-700 shrink-0">
     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -27,6 +29,44 @@ const ThumbsUpIcon = () => (
 );
 
 export default function Contact() {
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setStatus("sending");
+    setErrorMessage("");
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: formData.get("firstName"),
+          lastName: formData.get("lastName"),
+          email: formData.get("email"),
+          message: formData.get("message"),
+          website: formData.get("website"),
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to send your message.");
+      }
+
+      form.reset();
+      setStatus("success");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Unable to send your message.");
+      setStatus("error");
+    }
+  };
+
   return (
     <section id="contact" className="relative w-full py-20 px-6 overflow-hidden flex items-center justify-center min-h-[600px]">
       
@@ -71,21 +111,23 @@ export default function Contact() {
             {/* Email */}
             <div className="flex items-center gap-6">
               <div><EnvelopeIcon /></div>
-              <a href="mailto:CEO@weecarecanada.com" className="text-gray-500 font-light text-[15px] hover:text-[#8C52A1] transition-colors">
-                CEO@weecarecanada.com
+              <a href="mailto:ceo@weecarecanada.com" className="text-gray-500 font-light text-[15px] hover:text-[#8C52A1] transition-colors">
+                ceo@weecarecanada.com
               </a>
             </div>
 
-            {/* Thumbs Up (as per design, no text next to it) */}
-            <div className="flex items-center gap-6">
-              <div><ThumbsUpIcon /></div>
-            </div>
+           
           </div>
         </div>
 
         {}
         <div className="w-full md:w-7/12 flex flex-col justify-start md:pt-4">
-          <form className="w-full flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
+          <form className="w-full flex flex-col gap-6" onSubmit={handleSubmit}>
+            {/* Honeypot field: hidden from people, but commonly filled by spam bots. */}
+            <div className="absolute -left-[9999px]" aria-hidden="true">
+              <label htmlFor="website">Website</label>
+              <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+            </div>
             
             {/* Row 1: First Name & Last Name */}
             <div className="flex flex-col sm:flex-row gap-6">
@@ -96,6 +138,10 @@ export default function Contact() {
                 <input 
                   type="text" 
                   id="firstName" 
+                  name="firstName"
+                  required
+                  maxLength={80}
+                  autoComplete="given-name"
                   className="w-full border border-gray-200 bg-white px-3 py-2.5 outline-none focus:border-[#8C52A1] transition-colors shadow-sm"
                 />
               </div>
@@ -106,6 +152,10 @@ export default function Contact() {
                 <input 
                   type="text" 
                   id="lastName" 
+                  name="lastName"
+                  required
+                  maxLength={80}
+                  autoComplete="family-name"
                   className="w-full border border-gray-200 bg-white px-3 py-2.5 outline-none focus:border-[#8C52A1] transition-colors shadow-sm"
                 />
               </div>
@@ -119,7 +169,10 @@ export default function Contact() {
               <input 
                 type="email" 
                 id="email" 
+                name="email"
                 required
+                maxLength={254}
+                autoComplete="email"
                 className="w-full border border-gray-200 bg-white px-3 py-2.5 outline-none focus:border-[#8C52A1] transition-colors shadow-sm"
               />
             </div>
@@ -131,7 +184,10 @@ export default function Contact() {
               </label>
               <textarea 
                 id="message" 
+                name="message"
                 rows={4}
+                required
+                maxLength={5000}
                 className="w-full border border-gray-200 bg-white px-3 py-2.5 outline-none focus:border-[#8C52A1] transition-colors shadow-sm resize-y"
               ></textarea>
             </div>
@@ -140,10 +196,20 @@ export default function Contact() {
             <div className="w-full flex justify-end mt-2">
               <button 
                 type="submit"
-                className="bg-[#8C52A1] text-white px-10 py-2.5 hover:bg-[#714083] transition-colors font-light text-[15px]"
+                disabled={status === "sending"}
+                className="bg-[#8C52A1] text-white px-10 py-2.5 hover:bg-[#714083] transition-colors font-light text-[15px] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Send
+                {status === "sending" ? "Sending..." : "Send"}
               </button>
+            </div>
+
+            <div aria-live="polite" className="min-h-6 text-right text-sm">
+              {status === "success" && (
+                <p className="text-green-700">Thank you. Your message has been sent.</p>
+              )}
+              {status === "error" && (
+                <p className="text-red-600">{errorMessage}</p>
+              )}
             </div>
 
           </form>

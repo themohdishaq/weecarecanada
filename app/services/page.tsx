@@ -7,6 +7,15 @@ export const metadata: Metadata = {
   title: "Services",
   description:
     "Explore our full range of home care services including respite care, companionship support, personalized care, dementia care, fall prevention, and more.",
+  alternates: {
+    canonical: "/services",
+  },
+  openGraph: {
+    title: "Our Services | WeeCare Canada",
+    description:
+      "Explore our full range of home care services including respite care, companionship support, personalized care, dementia care, fall prevention, and more.",
+    url: "/services",
+  },
 };
 
 const slugify = (s: string) =>

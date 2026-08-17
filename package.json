@@ -1,5 +1,5 @@
 {
-  "name": "larkspur-home-care",
+  "name": "wee-care-canada",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -17,6 +17,7 @@
     "leaflet": "^1.9.4",
     "lucide-react": "^1.23.0",
     "next": "14.2.5",
+    "nodemailer": "^9.0.5",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.2",
     "react-dom": "^18.3.1",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@types/leaflet": "^1.9.21",
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.1",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.4.19",
