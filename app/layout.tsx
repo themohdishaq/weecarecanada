@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import {
-  Newsreader,
   Karla,
   JetBrains_Mono,
 } from "next/font/google";
@@ -11,13 +10,6 @@ import "leaflet/dist/leaflet.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { BUSINESS, SITE_NAME, SITE_URL } from "@/lib/site";
-
-const newsreader = Newsreader({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-newsreader",
-  display: "swap",
-});
 
 const karla = Karla({
   subsets: ["latin"],
@@ -35,6 +27,14 @@ const jetbrains = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+
+  ...(process.env.GOOGLE_SITE_VERIFICATION
+    ? {
+        verification: {
+          google: process.env.GOOGLE_SITE_VERIFICATION,
+        },
+      }
+    : {}),
 
   title: {
     default: "WeeCare Canada | Personalized Home Care Services",
@@ -189,7 +189,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${newsreader.variable} ${karla.variable} ${jetbrains.variable}`}
+      className={`${karla.variable} ${jetbrains.variable}`}
     >
       <body className="font-body antialiased min-h-screen flex flex-col bg-white text-gray-900">
         <script

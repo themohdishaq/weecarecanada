@@ -8,7 +8,7 @@ const rawSiteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
   (process.env.NEXT_PUBLIC_SITE_DOMAIN
     ? `https://${process.env.NEXT_PUBLIC_SITE_DOMAIN}`
-    : "https://weecarecanada.com");
+    : "https://www.weecarecanada.com");
 
 // Normalize: no trailing slash.
 export const SITE_URL = rawSiteUrl.replace(/\/+$/, "");

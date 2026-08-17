@@ -8,7 +8,7 @@ agency serving Kitchener and the wider Ontario region. Built with Next.js 14
 
 - Next.js 14 (App Router) + TypeScript
 - Tailwind CSS
-- Google Fonts: Newsreader (display), Karla (body), JetBrains Mono (labels)
+- Google Fonts: Karla (body), JetBrains Mono (labels); Georgia is used for display text
 - Nodemailer (SMTP) for contact and booking emails
 - No external UI libraries — everything is hand-built and easy to edit
 
