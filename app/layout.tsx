@@ -11,6 +11,8 @@ import "leaflet/dist/leaflet.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { BUSINESS, SITE_NAME, SITE_URL } from "@/lib/site";
+import WeCareChatbot from "@/components/WeeCareChatbot";
+import { Analytics } from "@vercel/analytics/next"
 
 const GOOGLE_TAG_ID = "G-T599Y83QNE";
 
@@ -217,9 +219,13 @@ export default function RootLayout({
 
         <Header />
 
-        <main className="flex-1">{children}</main>
+        <main className="flex-1">
+          {children}
+          <WeCareChatbot />
+        </main>
 
         <Footer />
+        <Analytics/>
       </body>
     </html>
   );
