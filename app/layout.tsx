@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import {
   Karla,
   JetBrains_Mono,
@@ -10,6 +11,8 @@ import "leaflet/dist/leaflet.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { BUSINESS, SITE_NAME, SITE_URL } from "@/lib/site";
+
+const GOOGLE_TAG_ID = "G-T599Y83QNE";
 
 const karla = Karla({
   subsets: ["latin"],
@@ -191,6 +194,20 @@ export default function RootLayout({
       lang="en"
       className={`${karla.variable} ${jetbrains.variable}`}
     >
+      <head>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_TAG_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-tag" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GOOGLE_TAG_ID}');
+          `}
+        </Script>
+      </head>
       <body className="font-body antialiased min-h-screen flex flex-col bg-white text-gray-900">
         <script
           type="application/ld+json"
